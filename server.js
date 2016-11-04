@@ -1,6 +1,7 @@
 var express = require('express'),
 	bodyParser = require('body-parser'),
-	jsonParser = bodyParser.json();
+	jsonParser = bodyParser.json(),
+    app = express();
 
 var Storage = {
 	add: function(name) {
@@ -24,20 +25,25 @@ storage.add('Broad beans');
 storage.add('Tomatoes');
 storage.add('Peppers');
 
-var app = express();
 app.use(express.static('public'));
 
-app.get('/items', function(request, response) {
-	response.json(storage.items);
-});
+app.route('/items')
+	.all(function (req, res, next) {
+		
+	})
+	.get(function (req, res, next) {
+		res.json(storage.items);
+	})
+	.post(function (req, res, next) {
+		var item = storage.add(req.body.name);
+		res.status(201).json(item);
 
-app.post('/items', jsonParser, function (request, response) {
+		if (!('name' in res.body)){
+			res.sendStatus(400);
+		}
 
-	if(!(name in request.body)){
-		return response.sendStatus(400);
-	}
-	var item = storage.add(request.body.name);
-	response.status(201).json(item);
-});
+	});
+
+
 
 app.listen(process.env.PORT || 8080, process.env.IP);
